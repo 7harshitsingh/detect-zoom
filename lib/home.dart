@@ -1,14 +1,13 @@
 // ignore_for_file: avoid_print
 
-import 'dart:io';
-
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:realtimedetectionandzoom/preview.dart';
+import 'package:realtimedetectionandzoom/customcamera.dart';
 import 'package:tflite/tflite.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.cameras});
+  final List<CameraDescription> cameras;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -30,28 +29,14 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    Size screen = MediaQuery.of(context).size;
     return Scaffold(
         body: SafeArea(
-            child: Center(
-      child: IconButton(
-        icon: const Icon(
-          Icons.image,
-          size: 32,
-        ),
-        color: Colors.white,
-        onPressed: () async {
-          XFile? image = await ImagePicker().pickImage(
-            source: ImageSource.gallery,
-            imageQuality: 100,
-          );
-          if (mounted && image != null) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (_) => ImagePreview(file: File(image.path))));
-          }
-        },
-      ),
+            child: CustomCamera(
+      cameras: widget.cameras,
+      subject: "bottle",
+      screenH: screen.height,
+      screenW: screen.width,
     )));
   }
 }
