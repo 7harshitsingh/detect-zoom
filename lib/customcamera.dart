@@ -25,7 +25,7 @@ class CustomCamera extends StatefulWidget {
 class _CustomCameraState extends State<CustomCamera> {
   late CameraController controller;
   bool isDetecting = false;
-  double scaleX = 1.0, scaleY = 1.0, x = 0.5, y = 0.5, w = 0.5, h = 0.5;
+  double scaleX = 1.0, scaleY = 1.0, x = 0.0, y = 0.0, w = 0, h = 0;
 
   @override
   void initState() {
@@ -74,11 +74,8 @@ class _CustomCameraState extends State<CustomCamera> {
                 (element) => element["detectedClass"] == widget.subject,
                 orElse: () => null);
             if (re != null) {
-              
               w = re["rect"]["w"] * img.width;
               h = re["rect"]["h"] * img.height;
-              x = re["rect"]["x"] * img.width;
-              y = re["rect"]["y"] * img.height;
 
               double subjectAspectRatio = w / h;
               double viewportAspectRatio = img.width / img.height;
@@ -93,7 +90,13 @@ class _CustomCameraState extends State<CustomCamera> {
                 scaleX = scaleY;
               }
 
-              print("$scaleX $scaleY $x $y $w $h");
+              x = (re["rect"]["x"] * img.width);
+              y = (re["rect"]["y"] * img.height);
+
+              x = x - (img.width / 2);
+              y = y - (img.height / 2);
+
+              print("$scaleX $scaleY $x $y $w $h ${img.height} ${img.width}");
               setState(() {});
             }
           } else {
@@ -127,16 +130,14 @@ class _CustomCameraState extends State<CustomCamera> {
                 )),
             IconButton(
                 onPressed: () {
-                  controller.stopImageStream().then((value) {
-                    setState(() {
-                      scaleX = 1.0;
-                      scaleY = 1.0;
-                      x = 0.5;
-                      y = 0.5;
-                      w = 0.5;
-                      h = 0.5;
-                    });
-                  });
+                  scaleX = 1.0;
+                  scaleY = 1.0;
+                  x = 0.0;
+                  y = 0.0;
+                  w = 0;
+                  h = 0;
+                  controller.stopImageStream();
+                  setState(() {});
                 },
                 icon: const Icon(
                   Icons.restart_alt,
@@ -152,8 +153,7 @@ class _CustomCameraState extends State<CustomCamera> {
                   child: Transform.scale(
                     scaleX: scaleX,
                     scaleY: scaleY,
-                    // origin: Offset((2 * x + w) / widget.screenW,
-                    //     (2 * y - h) / widget.screenH),
+                    // origin: Offset(x, y),
                     child: CameraPreview(controller),
                   ),
                 ),
